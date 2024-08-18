@@ -1,12 +1,9 @@
 package main
 
 import (
-	"context"
 	"fmt"
 	"redirect-tool/redis_service"
 )
-
-var ctx = context.Background()
 
 func main() {
 	redisService, err := redis_service.NewRedisService(
