@@ -26,6 +26,12 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+	defer func(manager *analytics.DbManager) {
+		err := manager.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(manager)
 
 	err = manager.RunMigrations()
 	if err != nil {
