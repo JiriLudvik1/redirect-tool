@@ -28,22 +28,16 @@ func (h *Handler) ShortenUrlHandler(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	body, err := io.ReadAll(r.Body)
+	requestData, err := parseRequestData(r)
 	if err != nil {
 		w.WriteHeader(http.StatusBadRequest)
 		return
 	}
-	defer func(Body io.ReadCloser) {
-		err := Body.Close()
-		if err != nil {
-			fmt.Println(err)
-		}
-	}(r.Body)
 
-	var requestData UrlRequest
-	err = json.Unmarshal(body, &requestData)
-	if err != nil {
+	_, validationErr := isValidUrl(requestData.URL)
+	if validationErr != nil {
 		w.WriteHeader(http.StatusBadRequest)
+		_, _ = w.Write([]byte(validationErr.Error()))
 		return
 	}
 
@@ -75,4 +69,25 @@ func (h *Handler) RedirectHandler(w http.ResponseWriter, r *http.Request) {
 	}
 
 	http.Redirect(w, r, originalUrl, http.StatusFound)
+}
+
+func parseRequestData(r *http.Request) (*UrlRequest, error) {
+	body, err := io.ReadAll(r.Body)
+	if err != nil {
+		return nil, err
+	}
+	defer func(Body io.ReadCloser) {
+		err := Body.Close()
+		if err != nil {
+			fmt.Println(err)
+		}
+	}(r.Body)
+
+	var requestData UrlRequest
+	err = json.Unmarshal(body, &requestData)
+	if err != nil {
+		return nil, err
+	}
+
+	return &requestData, nil
 }

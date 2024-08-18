@@ -2,6 +2,7 @@ package redis_service
 
 import (
 	"context"
+	"errors"
 	"github.com/go-redis/redis/v8"
 	"log"
 )
@@ -35,7 +36,12 @@ func (s *RedisService) CreateRedirectEntry(url string) (string, error) {
 	urlHash := createUrlHash(url)
 	redirectKey := getRedirectRedisKey(urlHash)
 
-	err := s.set(redirectKey, url)
+	_, err := s.get(redirectKey)
+	if !errors.Is(err, redis.Nil) {
+		return urlHash, nil
+	}
+
+	err = s.set(redirectKey, url)
 	if err != nil {
 		return "", nil
 	}
