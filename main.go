@@ -38,7 +38,7 @@ func main() {
 		panic(err)
 	}
 
-	httpHandler := http_handler.NewHandler(redisService)
+	httpHandler := http_handler.NewHandler(redisService, manager)
 	http.HandleFunc("/shorten", httpHandler.ShortenUrlHandler)
 	http.HandleFunc("/", httpHandler.RedirectHandler)
 

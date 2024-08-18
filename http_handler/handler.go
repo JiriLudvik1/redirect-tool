@@ -5,20 +5,26 @@ import (
 	"fmt"
 	"io"
 	"net/http"
+	"redirect-tool/analytics"
 	"redirect-tool/redis_service"
 )
 
 type Handler struct {
-	RedisService *redis_service.RedisService
+	RedisService     *redis_service.RedisService
+	AnalyticsManager *analytics.DbManager
 }
 
 type UrlRequest struct {
 	URL string `json:"url"`
 }
 
-func NewHandler(redisService *redis_service.RedisService) *Handler {
+func NewHandler(
+	redisService *redis_service.RedisService,
+	analyticsManager *analytics.DbManager,
+) *Handler {
 	return &Handler{
-		RedisService: redisService,
+		RedisService:     redisService,
+		AnalyticsManager: analyticsManager,
 	}
 }
 
@@ -67,6 +73,13 @@ func (h *Handler) RedirectHandler(w http.ResponseWriter, r *http.Request) {
 		w.WriteHeader(http.StatusNotFound)
 		return
 	}
+
+	go func() {
+		analyticsErr := h.AnalyticsManager.AddClientAndRedirect(r.RemoteAddr, originalUrl)
+		if analyticsErr != nil {
+			fmt.Printf("Error adding analytics: %s\n", analyticsErr.Error())
+		}
+	}()
 
 	http.Redirect(w, r, originalUrl, http.StatusFound)
 }
