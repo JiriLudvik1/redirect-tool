@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"log"
 	"net/http"
+	"redirect-tool/analytics"
 	"redirect-tool/http_handler"
 	"redirect-tool/redis_service"
 )
@@ -21,18 +22,15 @@ func main() {
 		panic(err)
 	}
 
-	//redirectHash, err := redisService.CreateRedirectEntry("www.facebook.com")
-	//if err != nil {
-	//	panic(err)
-	//}
-	//fmt.Println("Redirect hash is: ", redirectHash)
-	//
-	//originalUrl, err := redisService.GetOriginalUrl(redirectHash)
-	//if err != nil {
-	//	panic(err)
-	//}
-	//
-	//fmt.Println("OriginalUrl is: ", originalUrl)
+	manager, err := analytics.NewAnalyticsDbManager("./analytics.db")
+	if err != nil {
+		panic(err)
+	}
+
+	err = manager.RunMigrations()
+	if err != nil {
+		panic(err)
+	}
 
 	httpHandler := http_handler.NewHandler(redisService)
 	http.HandleFunc("/shorten", httpHandler.ShortenUrlHandler)
