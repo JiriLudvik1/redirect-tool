@@ -25,7 +25,7 @@ func main() {
 	}
 	fmt.Println("Redirect hash is: ", redirectHash)
 
-	originalUrl, err := redisService.GetOriginalUril(redirectHash)
+	originalUrl, err := redisService.GetOriginalUrl(redirectHash)
 	if err != nil {
 		panic(err)
 	}

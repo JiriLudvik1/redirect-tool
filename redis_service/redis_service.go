@@ -43,7 +43,7 @@ func (s *RedisService) CreateRedirectEntry(url string) (string, error) {
 	return urlHash, nil
 }
 
-func (s *RedisService) GetOriginalUril(hash string) (string, error) {
+func (s *RedisService) GetOriginalUrl(hash string) (string, error) {
 	redirectKey := getRedirectRedisKey(hash)
 
 	value, err := s.get(redirectKey)
