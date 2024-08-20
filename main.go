@@ -5,6 +5,7 @@ import (
 	"log"
 	"net/http"
 	"redirect-tool/analytics"
+	"redirect-tool/healthcheck"
 	"redirect-tool/http_handler"
 	"redirect-tool/redis_service"
 )
@@ -12,6 +13,16 @@ import (
 const apiPort = ":42069"
 
 func main() {
+	testUrls := []string{
+		"https://www.youtube.com",
+		"https://www.facebook.com",
+		"https://www.instagram.com",
+	}
+	checkResults := healthcheck.CheckUrls(testUrls)
+	for _, result := range checkResults {
+		fmt.Println(result)
+	}
+
 	redisService, err := redis_service.NewRedisService(
 		"localhost:6379",
 		"",
