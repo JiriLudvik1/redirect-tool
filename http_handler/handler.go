@@ -12,6 +12,7 @@ import (
 type Handler struct {
 	RedisService     *redis_service.RedisService
 	AnalyticsManager *analytics.DbManager
+	LimiterChan      chan struct{}
 }
 
 type UrlRequest struct {
@@ -21,10 +22,12 @@ type UrlRequest struct {
 func NewHandler(
 	redisService *redis_service.RedisService,
 	analyticsManager *analytics.DbManager,
+	limiterChan chan struct{},
 ) *Handler {
 	return &Handler{
 		RedisService:     redisService,
 		AnalyticsManager: analyticsManager,
+		LimiterChan:      limiterChan,
 	}
 }
 
@@ -81,6 +84,7 @@ func (h *Handler) RedirectHandler(w http.ResponseWriter, r *http.Request) {
 		}
 	}()
 
+	<-h.LimiterChan
 	http.Redirect(w, r, originalUrl, http.StatusFound)
 }
 

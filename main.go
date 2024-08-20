@@ -49,7 +49,10 @@ func main() {
 		panic(err)
 	}
 
-	httpHandler := http_handler.NewHandler(redisService, manager)
+	limiterChan := make(chan struct{}, 10)
+	go http_handler.RateLimiter(limiterChan)
+
+	httpHandler := http_handler.NewHandler(redisService, manager, limiterChan)
 	http.HandleFunc("/shorten", httpHandler.ShortenUrlHandler)
 	http.HandleFunc("/", httpHandler.RedirectHandler)
 
